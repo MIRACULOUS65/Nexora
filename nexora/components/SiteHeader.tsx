@@ -2,8 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react'
 import { Button } from './ui/button';
-import { OrganizationSwitcher, Show, SignInButton, SignUpButton, useAuth } from '@clerk/nextjs';
+import { OrganizationSwitcher, Show, SignInButton, SignUpButton, useAuth, UserButton } from '@clerk/nextjs';
 import { usePathname } from 'next/navigation';
+import PlanButton from './PlanButton';
 
 const SiteHeader = () => {
   const pathname = usePathname();
@@ -65,11 +66,16 @@ const SiteHeader = () => {
             afterSelectOrganizationUrl="/dashboard"
             />
 
-          {isLandingPage && (
+          {isLandingPage ? (
             <Button asChild size="sm">
                 <Link href="/dashboard">Dashboard</Link>
             </Button>
+          ):(
+            <PlanButton/>
           )}
+
+
+          <UserButton/>
         </Show>
 
       </div>

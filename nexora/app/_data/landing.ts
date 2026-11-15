@@ -107,10 +107,9 @@ export const landingContent = {
     ] satisfies HowItWorksStep[],
   },
   pricing: {
-    heading: "pricing",
-    subtitle: "Simple pricing is coming soon.",
-    placeholder:
-      "We are finalizing plans for individuals and teams. Join early access and we will notify you when pricing goes live.",
+    heading: "Pricing",
+    subtitle: "Upgrade just yourself or your whole team. Billed per member",
+    
   },
   closingCta: {
     heading: "Bring your next idea to the outpost",

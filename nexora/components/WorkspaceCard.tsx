@@ -33,6 +33,8 @@ export function WorkspaceCard({
             className={`group relative flex h-36 flex-col gap-1 rounded-md bg-muted p-3.5 shadow-sm shadow-black/40 ring-1 transition-colors hover:bg-secondary ${highlighted ? "shadow-lg ring-primary/60" : "ring-white/6"
                 }`}
         >
+            {actions && <div className="absolute top-2 right-2 z-20">{actions}</div>}
+
             <Link
             href={`/workspace/${workspace.id}`}
             draggable={false}

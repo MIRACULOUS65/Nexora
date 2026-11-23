@@ -10,7 +10,12 @@ import { useSyncDemo } from '@tldraw/sync';
 import { Prisma } from '@/lib/generated/prisma/client';
 import { saveCanvasContent } from '@/actions/canvas';
 
+import { AddTableButton, EntityTableShapeUtil, registerEntityTableSnapping } from '@/components/EntityTable';
+
 import "tldraw/tldraw.css";
+
+// Defined once at module level: tldraw and useSyncDemo expect a stable array.
+const shapeUtils = [EntityTableShapeUtil];
 
 // A cleaner, single-page canvas: no style panel, page menu or main menu, and a
 // vertical toolbar
@@ -21,7 +26,7 @@ const components: TLComponents = {
     MainMenu: null,
     Toolbar: () => (
         <DefaultToolbar orientation="vertical">
-            {/* TODO: Add table button (ERD step) */}
+            <AddTableButton />
             <DefaultToolbarContent />
         </DefaultToolbar>
     ),
@@ -76,7 +81,7 @@ const CanvasEditor = ({
         });
     }, [userId, userName]);
 
-    const store = useSyncDemo({ roomId: `nexora-${workspaceId}`, users });
+    const store = useSyncDemo({ roomId: `nexora-${workspaceId}`, users, shapeUtils });
 
     //Runs once tldraw is ready. editor is the object for reading and changing the canvas.
 
@@ -110,7 +115,13 @@ const CanvasEditor = ({
             scope:"document"
         });
 
-        return () => setCanvasEditor(null);
+        // Arrows dropped on a table snap to the nearest row.
+        const unregisterSnapping = registerEntityTableSnapping(editor);
+
+        return () => {
+            unregisterSnapping();
+            setCanvasEditor(null);
+        };
 
     }
 
@@ -119,6 +130,7 @@ const CanvasEditor = ({
             store={store}
             user={currentUser}
             onMount={handleMount}
+            shapeUtils={shapeUtils}
             components={components}
             colorScheme="dark"
         />

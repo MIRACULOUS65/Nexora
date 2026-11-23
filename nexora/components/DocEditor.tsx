@@ -14,7 +14,7 @@ import * as Y from "yjs"
 import { useUser } from '@clerk/nextjs';
 import { useCollaborativeDoc } from '@/hooks/use-collaborative-doc';
 import { colorForUser } from '@/lib/utils';
-import { CollaborationExtension } from '@blocknote/core/y';
+import { CollaborationExtension } from '@blocknote/core/yjs';
 import { toBase64 } from '@/lib/base64';
 
 type DocEditorProps = {

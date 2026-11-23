@@ -1,0 +1,5 @@
+export { AddTableButton } from './AddTableButton'
+export { EntityTableShapeUtil } from './EntityTableShapeUtil'
+export { registerEntityTableSnapping } from './snapping'
+export { ENTITY_TABLE_TYPE } from './types'
+export type { EntityTableRow, EntityTableShape } from './types'

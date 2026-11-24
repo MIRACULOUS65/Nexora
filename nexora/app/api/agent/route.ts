@@ -1,10 +1,15 @@
 import { checkUser } from "@/actions/check-user";
 import { canAccessWorkspace } from "@/lib/workspace-access";
 import { google } from "@ai-sdk/google";
+import { toStreamErrorMessage } from "@/lib/agent-errors";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 
+import { agentToolDefs } from "@/lib/agent-tools"
+import { getPromptUsage, getWorkspaceOwnerId, recordPrompt } from "@/lib/billing";
+import { PROMPT_LIMIT_ERROR } from "@/lib/plan-limits";
+
 //the instruc. gemini gets on every request: which surface to use and how to lay out diagrams.
-const SYSTEM_PROMPT= `You are Outpost's workspace agent. A workspace has two surfaces: a canvas (an infinite whiteboard for diagrams) and a doc (a rich-text document). You change them only by calling tools, never by describing changes in text. Never use em dashes in your replies.
+const SYSTEM_PROMPT = `You are Outpost's workspace agent. A workspace has two surfaces: a canvas (an infinite whiteboard for diagrams) and a doc (a rich-text document). You change them only by calling tools, never by describing changes in text. Never use em dashes in your replies.
 
 Choosing where to work:
 - If the user names a surface ("in the doc", "just the diagram", "only the canvas"), change only that surface.
@@ -32,7 +37,7 @@ Canvas layout rules: diagrams must never look cluttered or have overlapping shap
 - Give each ERD table its own column with at least 150px of horizontal clearance, since tables grow with their column count.`
 
 //show to gemini instead of a summary when a surface's panel is hidden.
-const NOT_OPEN= "(not open in this view, so its tools will fail)";
+const NOT_OPEN = "(not open in this view, so its tools will fail)";
 export async function POST(req: Request) {
     const user = await checkUser();
 
@@ -52,23 +57,51 @@ export async function POST(req: Request) {
         docContext: string | null;
     } = await req.json();
 
-    if(!(await canAccessWorkspace(workspaceId)))
-        return new Response("workspace not found",{status:404});
+    if (!(await canAccessWorkspace(workspaceId)))
+        return new Response("workspace not found", { status: 404 });
+
+    let ownerId: string | null = null;
+    if (messages.at(-1)?.role === "user") {
+        ownerId = await getWorkspaceOwnerId(workspaceId);
+        const { used, limit } = await getPromptUsage(ownerId);
+
+        // Checked before calling Gemini, so an exhausted plan costs nothing.
+        if (used >= limit)
+            return Response.json(
+                { error: PROMPT_LIMIT_ERROR, used, limit },
+                { status: 402 },
+            );
+    }
 
     const result = streamText({
-        model:"google/gemini-3.5-flash-lite",
+        model: google('gemini-3.5-flash-lite'),
         //the rules, plus whats on the canvas and in the doc right now, so edits use real ids
-        system:`${SYSTEM_PROMPT}\n\n Current canvas state:\n${canvasContext??NOT_OPEN}\n\nCurrent doc state:\n${docContext??NOT_OPEN}`,
+        system: `${SYSTEM_PROMPT}\n\n Current canvas state:\n${canvasContext ?? NOT_OPEN}\n\nCurrent doc state:\n${docContext ?? NOT_OPEN}`,
+
+        tools: agentToolDefs,
 
         //the chats ui messages, converted to the format the model expects.
         messages: await convertToModelMessages(messages),
 
-        providerOptions:{
-            google:{thinkingConfig:{includeThoughts:true}},
+        providerOptions: {
+            google: { thinkingConfig: { includeThoughts: true } },
+        },
+
+        //charged only once gemini answers, so a failed request (e.g. high demand) costs nothing.
+
+        onFinish: async()=>{
+            if(ownerId) await recordPrompt(ownerId,user.id,workspaceId);
         },
     });
 
     //streams it all back in the format useChat reads, reasoning included.
 
-    return result.toUIMessageStreamResponse({sendReasoning:true});
+    //onError: without it the SDK hides stream errors behind a generic message, so the panel couldn't
+    //tell "model busy" (worth a retry) from a real failure. redactToolErrors:false keeps the real
+    //text for tool-call errors instead of replacing it with these codes.
+    return result.toUIMessageStreamResponse({
+        sendReasoning: true,
+        onError: toStreamErrorMessage,
+        redactToolErrors: false,
+    });
 }

@@ -5,10 +5,10 @@ import { HTMLContainer, stopEventPropagation, useEditor, useIsEditing } from 'tl
 import {
     HEADER_HEIGHT,
     ROW_HEIGHT,
-    createRow,
-    type EntityTableRow,
+    newRow,
+    type EntityRow,
     type EntityTableShape,
-} from './types'
+} from './EntityTableShape'
 
 // Brand amber is --primary in globals.css: oklch(0.74 0.16 55).
 const AMBER = 'oklch(0.74 0.16 55)'
@@ -134,7 +134,7 @@ export function EntityTableView({ shape }: { shape: EntityTableShape }) {
         editor.updateShape<EntityTableShape>({ id: shape.id, type: shape.type, props })
     }
 
-    const updateRow = (rowId: string, changes: Partial<EntityTableRow>) => {
+    const updateRow = (rowId: string, changes: Partial<EntityRow>) => {
         updateProps({ rows: rows.map((row) => (row.id === rowId ? { ...row, ...changes } : row)) })
     }
 
@@ -143,7 +143,7 @@ export function EntityTableView({ shape }: { shape: EntityTableShape }) {
     }
 
     const addRow = () => {
-        const row = createRow({ name: `column_${rows.length + 1}` })
+        const row = newRow({ name: `column_${rows.length + 1}` })
         pendingFocusRowId.current = row.id
         updateProps({ rows: [...rows, row] })
     }

@@ -1,6 +1,7 @@
 import { auth, clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
+// /shared/* is deliberately absent: public share links are viewed without signing in.
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/workspace(.*)",

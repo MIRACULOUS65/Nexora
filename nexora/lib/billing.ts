@@ -4,8 +4,8 @@ import { FREE_MONTHLY_PROMPTS } from "./plan-limits";
 
 
 const PROMPT_FEATURES = [
-    { feature: "agent_promts_2000", perMember: 2000 },
-    { feature: "agent_promts_500", perMember: 500 },
+    { feature: "agent_prompts_2000", perMember: 2000 },
+    { feature: "agent_prompts_500", perMember: 500 },
 ];
 
 
@@ -35,7 +35,7 @@ export async function getEntitlements(ownerId: string) {
     const features = new Set<string>();
 
     try {
-        const subscription = isOrg ? await clerk.billing.getOrganizationBillingSubscription(ownerId) : await clerk.billing.getOrganizationBillingSubscription(ownerId);
+        const subscription = isOrg ? await clerk.billing.getOrganizationBillingSubscription(ownerId) : await clerk.billing.getUserBillingSubscription(ownerId);
 
         for (const item of subscription.subscriptionItems) {
             if (item.status === "active" || item.status === "past_due") {
@@ -44,16 +44,17 @@ export async function getEntitlements(ownerId: string) {
                 );
             }
         }
-    } catch{
-
+    } catch (error) {
+        console.error("[billing] failed to load subscription for", ownerId, error);
     }
 
-    const paid = PROMPT_FEATURES.find(({feature})=>features.has(feature));
-    let promptLimit = FREE_MONTHLY_PROMPTS;
-    if(paid){
-        const members = isOrg? ((await clerk.organizations.getOrganization({organizationId:ownerId,includeMembersCount:true})).membersCount??1):1;
 
-        promptLimit=paid.perMember * members;
+    const paid = PROMPT_FEATURES.find(({ feature }) => features.has(feature));
+    let promptLimit = FREE_MONTHLY_PROMPTS;
+    if (paid) {
+        const members = isOrg ? ((await clerk.organizations.getOrganization({ organizationId: ownerId, includeMembersCount: true })).membersCount ?? 1) : 1;
+
+        promptLimit = paid.perMember * members;
     }
 
 
@@ -62,6 +63,35 @@ export async function getEntitlements(ownerId: string) {
         promptLimit,
         unlimitedWorkspaces: features.has("unlimited_workspaces"),
         publicSharing: features.has("public_sharing"),
-        pdfExport:features.has("pdf_export"),
+        pdfExport: features.has("pdf_export"),
     }
+}
+
+
+function startOfMonthUtc() {
+    const now = new Date();
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+}
+
+//this month's prompts against the owner's allowance
+
+export async function getPromptUsage(ownerId: string) {
+    const [{ promptLimit, isPaid }, used] = await Promise.all([
+        getEntitlements(ownerId),
+        prisma.agentPrompt.count({
+            where: { ownerId, createdAt: { gte: startOfMonthUtc() } },
+        }),
+    ]);
+
+
+    return {used,limit:promptLimit,isPaid};
+}
+
+
+export async function recordPrompt(
+  ownerId: string,
+  userId: string,
+  workspaceId: string,
+) {
+  await prisma.agentPrompt.create({ data: { ownerId, userId, workspaceId } });
 }

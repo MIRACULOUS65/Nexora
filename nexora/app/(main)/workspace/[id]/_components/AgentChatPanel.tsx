@@ -10,11 +10,15 @@ import { useState } from "react";
 import { BeatLoader } from "react-spinners";
 import { submitOnEnter } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useUpgradeDialog } from "@/components/UpgradeDialog";
+import { PROMPT_LIMIT_ERROR, UPGRADE_REASONS } from "@/lib/plan-limits";
+import { MODEL_BUSY_ERROR } from "@/lib/agent-errors";
 
 export function AgentChatPanel({ chat, isReady }: { chat: WorkspaceAgentChat; isReady: boolean }) {
 
     const [input, setInput] = useState("");
-    const { messages, sendMessage, stop, status, error } = chat;
+    const { messages, sendMessage, regenerate, stop, status, error } = chat;
+    const openUpgrade = useUpgradeDialog();
 
     const isBusy = status === "submitted" || status === "streaming";
     const handleSend = () => {
@@ -56,7 +60,10 @@ export function AgentChatPanel({ chat, isReady }: { chat: WorkspaceAgentChat; is
                         messages.map((message) => (
                             <div
                                 key={message.id}
-                                className={`max-w-[85%] space-y-1.5 rounded-lg px-3 py-2 text-sm ${message.role}==="user" ?"ml-auto bg-primary text-primary-foreground":"bg-white/5 text-foreground"}`}
+                                className={`space-y-1.5 rounded-lg px-3 py-2 text-sm ${message.role === "user"
+                                    ? "ml-auto max-w-[85%] bg-primary text-primary-foreground"
+                                    : "mr-auto w-full border border-white/10 bg-black text-foreground"
+                                    }`}
                             >
                                 {message.parts.map((part, i) => {
                                     if (part.type === "reasoning") {
@@ -119,10 +126,35 @@ export function AgentChatPanel({ chat, isReady }: { chat: WorkspaceAgentChat; is
                     </p>)}
 
                     {error && (
-                        <p className="rounded-md border border-white/10 bg-white/30 px-3 py-2 text-xs text-muted-foreground">
-                            Something wrong. Try again later
-                        </p>
-                    )}
+              <p className="rounded-md border border-white/10 bg-white/3 px-3 py-2 text-xs text-muted-foreground">
+                {error.message.includes(PROMPT_LIMIT_ERROR) ? (
+                  <>
+                    You&apos;re out of agent prompts this month.{" "}
+                    <button
+                      type="button"
+                      onClick={() => openUpgrade(UPGRADE_REASONS.prompts)}
+                      className="font-medium text-primary hover:underline"
+                    >
+                      Upgrade
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {error.message.includes(MODEL_BUSY_ERROR)
+                      ? "The model is busy right now (high demand)."
+                      : "Something went wrong."}{" "}
+                    <button
+                      type="button"
+                      onClick={() => regenerate()}
+                      disabled={isBusy}
+                      className="font-medium text-primary hover:underline disabled:opacity-50"
+                    >
+                      Retry
+                    </button>
+                  </>
+                )}
+              </p>
+            )}
                 </div>
                 <div className="flex shrink-0 items-end gap-2 border-t border-white/6 p-3">
                     <textarea

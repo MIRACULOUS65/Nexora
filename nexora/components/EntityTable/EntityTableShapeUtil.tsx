@@ -2,12 +2,12 @@ import React from 'react'
 import { BaseBoxShapeUtil, T, type TLResizeInfo } from 'tldraw'
 import { EntityTableView } from './EntityTableView'
 import {
-    DEFAULT_WIDTH,
+    TABLE_WIDTH,
     ENTITY_TABLE_TYPE,
     MIN_WIDTH,
     getTableHeight,
     type EntityTableShape,
-} from './types'
+} from './EntityTableShape'
 
 const rowValidator = T.object({
     id: T.string,
@@ -35,7 +35,7 @@ export class EntityTableShapeUtil extends BaseBoxShapeUtil<EntityTableShape> {
 
     getDefaultProps(): EntityTableShape['props'] {
         return {
-            w: DEFAULT_WIDTH,
+            w: TABLE_WIDTH,
             h: getTableHeight(0),
             tableName: 'table_name',
             rows: [],

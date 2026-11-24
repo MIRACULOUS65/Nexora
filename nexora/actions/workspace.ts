@@ -4,7 +4,8 @@ import { FREE_WORKSPACE_LIMIT, LimitError } from "@/lib/plan-limits";
 import { checkUser } from "./check-user";
 import { auth } from "@clerk/nextjs/server";
 import { scopeWhere } from "@/lib/workspace-scope";
-import { getEntitlements, workspaceOwnerSelect } from "@/lib/billing";
+import { getEntitlements, getWorkspaceOwnerId, workspaceOwnerSelect } from "@/lib/billing";
+import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { WorkspaceStatus } from "@/lib/generated/prisma/browser";
@@ -123,4 +124,33 @@ export async function updateWorkspace(workspaceId: string, name: string) {
   revalidateWorkspaceLists();
   revalidatePath(`/workspace/${workspaceId}`);
   return workspace;
+}
+
+// Turns the read-only public link on or off. Turning it on always saves a fresh token,
+// so calling it again with `true` resets the link and the old one stops working.
+export async function setWorkspaceSharing(
+  workspaceId: string,
+  enabled: boolean,
+): Promise<{ shareToken: string | null } | { limit: LimitError }> {
+  if (!(await canAccessWorkspace(workspaceId)))
+    throw new Error("Workspace not found");
+
+  let shareToken: string | null = null;
+
+  if (enabled) {
+    const { publicSharing } = await getEntitlements(
+      await getWorkspaceOwnerId(workspaceId),
+    );
+    if (!publicSharing) return { limit: "sharing" };
+
+    shareToken = randomBytes(24).toString("base64url");
+  }
+
+  await prisma.workspace.update({
+    where: { id: workspaceId },
+    data: { shareToken },
+  });
+
+  revalidatePath(`/workspace/${workspaceId}`);
+  return { shareToken };
 }

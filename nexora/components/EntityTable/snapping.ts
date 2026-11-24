@@ -3,9 +3,9 @@ import {
     ENTITY_TABLE_TYPE,
     HEADER_HEIGHT,
     ROW_HEIGHT,
-    getRowCenterY,
+    rowAnchorY,
     type EntityTableShape,
-} from './types'
+} from './EntityTableShape'
 
 /**
  * Arrow bindings that point at an entity table are snapped to a row: the anchor moves to the middle
@@ -90,7 +90,7 @@ function snapBindingToRow(
         }
 
         meta.rowId = rows[rowIndex].id
-        normalizedY = getRowCenterY(rowIndex) / h
+        normalizedY = rowAnchorY(rowIndex, rows.length)
     }
 
     const normalizedX = getFacingSide(editor, table, binding)

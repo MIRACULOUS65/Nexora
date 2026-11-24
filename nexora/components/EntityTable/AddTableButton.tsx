@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { createShapeId, TldrawUiButtonIcon, TldrawUiToolbarButton, useEditor } from 'tldraw'
-import { ENTITY_TABLE_TYPE, createStarterTableProps, type EntityTableShape } from './types'
+import { ENTITY_TABLE_TYPE, createStarterTableProps, type EntityTableShape } from './EntityTableShape'
 
 const TABLE_ICON = (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">

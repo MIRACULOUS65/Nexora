@@ -13,3 +13,11 @@ export const DocEditor = dynamic(
     ssr: false,
   },
 );
+
+// Same reason as DocEditor: the viewer creates a BlockNote editor, which needs `window`.
+export const DocViewer = dynamic(
+  () => import("@/components/DocViewer").then((m) => m.DocViewer),
+  {
+    ssr: false,
+  },
+);

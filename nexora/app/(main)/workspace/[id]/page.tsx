@@ -15,6 +15,9 @@ import { TLEditorSnapshot } from 'tldraw';
 import { Block } from '@blocknote/core';
 import {DocEditor} from '@/components/DocEditorLoader';
 import { AgentToggleButton } from './_components/AgentToggleButton';
+import PlanButton from '@/components/PlanButton';
+import { ShareDialog } from './_components/ShareDialog';
+import { getEntitlements, workspaceOwnerId, workspaceOwnerSelect } from '@/lib/billing';
 
 
 type ViewMode = "doc" | "canvas" | "both";
@@ -37,12 +40,18 @@ const WorkspacePage = async ({
   const workspace = await prisma.workspace.findUnique({
     where: { id },
     select: { name: true,
+      shareToken: true,
+      ...workspaceOwnerSelect,
       doc:{select:{content:true,yjsState:true}},
       canvas:{select:{content:true}},
      },
   });
 
   if (!workspace) notFound();
+
+  const { publicSharing: canShare, pdfExport: canExportPdf } = await getEntitlements(
+    workspaceOwnerId(workspace),
+  );
 
   const showDoc = view === "doc" || view === "both";
   const showCanvas = view === "canvas" || view === "both";
@@ -94,6 +103,14 @@ const WorkspacePage = async ({
         </div>
 
         <div className="flex flex-1 items-center justify-end gap-2">
+          <PlanButton upgradeOnlyWhenOut/>
+          <ShareDialog
+            workspaceId={id}
+            workspaceName={workspace.name}
+            initialShareToken={workspace.shareToken}
+            canShare={canShare}
+            canExportPdf={canExportPdf}
+          />
           <AgentToggleButton workspaceId={id} initialPrompt={typeof prompt ==="string"? prompt:undefined}/>
         </div>
       </header>

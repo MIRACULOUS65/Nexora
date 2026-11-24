@@ -1,7 +1,7 @@
 "use client"
 
 import { useWorkspaceEditors } from '@/components/WorkspaceEditorsContext';
-import { outpostDarkTheme } from '@/lib/blacknote-theme';
+import { nexoraDarkTheme } from '@/lib/blacknote-theme';
 import type { Block } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
@@ -123,7 +123,7 @@ export const CollaborativeEditor = ({ workspaceId, initialContent, doc, provider
   return (
     <div className="h-full overflow-y-auto pt-6">
       {/* Renders the editor UI in our dark colors. */}
-      <BlockNoteView editor={editor} theme={outpostDarkTheme} />
+      <BlockNoteView editor={editor} theme={nexoraDarkTheme} />
     </div>
   );
 }

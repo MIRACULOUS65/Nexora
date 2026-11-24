@@ -27,7 +27,7 @@ const SiteHeader = () => {
  {/* nav bar */}
       {isLandingPage && (
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-          <Link href="#product" className="transition-colors hover:text-foreground">
+          <Link href="/dashboard" className="transition-colors hover:text-foreground">
             Product
           </Link>
 

@@ -14,8 +14,8 @@ export type HowItWorksStep = {
 export const landingContent = {
   hero: {
     eyebrow: "Early access",
-    titleStart: "An",
-    titleHighlight: "outpost",
+    titleStart: "Meet",
+    titleHighlight: "Nexora",
     titleEnd: "for whatever you're building",
     subtitle:
       "Nexora gives teams one place to map ideas, shape docs, and ship faster without losing context.",
@@ -112,7 +112,7 @@ export const landingContent = {
     
   },
   closingCta: {
-    heading: "Bring your next idea to the outpost",
+    heading: "Bring your next idea to Nexora",
     description:
       "Start with a prompt, let the agent map the route, and build alongside your team from day one.",
     button: {

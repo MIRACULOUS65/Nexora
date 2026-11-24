@@ -7,7 +7,7 @@ import { useUpgradeDialog } from './UpgradeDialog';
 import { getActivePromptUsage } from '@/actions/usage';
 
 type Usage = Awaited<ReturnType<typeof getActivePromptUsage>>;
-const USAGE_CHANGED_EVENT = "outpost:prompt-usage-changed";
+const USAGE_CHANGED_EVENT = "nexora:prompt-usage-changed";
 
 export function refreshPromptUsage() {
     window.dispatchEvent(new Event(USAGE_CHANGED_EVENT));

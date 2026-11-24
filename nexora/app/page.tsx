@@ -5,7 +5,7 @@ import type { ReactNode } from "react"
 import { landingContent, type LandingFeature } from "@/app/_data/landing"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PricingTable } from "@clerk/nextjs";
+import ClientPricingTable from "@/components/ClientPricingTable";
 
 const PRICING_TABS=
 "rounded-full px-5 py-1.5 data-active:bg-primary data-active:text-primary-foreground dark:data-active:bg-primary dark:dark-active:text-primary-foreground";
@@ -222,7 +222,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="how-it-works" className="mx-auto w-full max-w-6xl px-6 pb-24 sm:px-8">
+      <section id="how-it-works" className="scroll-mt-24 mx-auto w-full max-w-6xl px-6 pb-24 sm:px-8">
         <h2 className="max-w-3xl text-balance text-3xl leading-tight font-semibold sm:text-4xl">
           {features.heading}
         </h2>
@@ -294,7 +294,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 pb-24 sm:px-8">
+      <section id="pricing" className="scroll-mt-24 mx-auto w-full max-w-6xl px-6 pb-24 sm:px-8">
         <div className="rounded-3xl border border-border/70 bg-card/75 p-8 sm:p-10 items-center text-center backdrop-blur-sm">
           <h2 className="text-8xl leading-tight font-semibold sm:text-4xl">
             {pricing.heading}
@@ -308,10 +308,10 @@ export default function Home() {
               <TabsTrigger value="organization" className={PRICING_TABS}>Team</TabsTrigger>
             </TabsList>
             <TabsContent value="user" className="w-full">
-              <PricingTable for="user"/>
+              <ClientPricingTable for="user"/>
             </TabsContent>
             <TabsContent value="organization" className="w-full">
-              <PricingTable for="organization"/>
+              <ClientPricingTable for="organization"/>
             </TabsContent>
           </Tabs>
         </div>

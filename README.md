@@ -2,7 +2,7 @@
  
 ## 🎥 Nexora Demo
 
-[![Nexora Demo Video](./web/public/logo.png)](https://youtu.be/-Nt5kAfVYVs)
+[![Nexora Demo Video](./nexora/public/banner.png)](https://youtu.be/-Nt5kAfVYVs)
 
 ▶️ **[Watch Demo Video on Youtube](https://youtu.be/-Nt5kAfVYVs)**
 

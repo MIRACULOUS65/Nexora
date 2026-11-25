@@ -1,6 +1,6 @@
 <div align="center">
  
-## 🎥 Nexora Demo
+## Nexora Demo
 
 [![Nexora Demo Video](./nexora/public/banner.png)](https://youtu.be/-Nt5kAfVYVs)
 

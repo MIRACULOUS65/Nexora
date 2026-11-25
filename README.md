@@ -1,4 +1,17 @@
-# Nexora
+<div align="center">
+ 
+## 🎥 Nexora Demo
+
+[![Nexora Demo Video](./web/public/logo.png)](https://youtu.be/-Nt5kAfVYVs)
+
+▶️ **[Watch Demo Video on Youtube](https://youtu.be/-Nt5kAfVYVs)**
+
+
+### ** An AI Workspace for Canvas, Docs and Team Boards.**
+
+*an AI workspace where you describe what you're building and an agent draws it for you. It maps your idea onto an infinite canvas and turns the diagram into a written spec. Your team can then work on it together in real time.*
+
+<br/># Nexora
 
 Nexora is a collaborative workspace for product teams, founders and agencies. Every workspace combines an infinite whiteboard and a block-based document editor, and a Gemini-powered agent can edit both for you from a chat panel.
 
